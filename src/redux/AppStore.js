@@ -191,36 +191,13 @@ let myStore = createStore(
 
                     ball.previousBounds = {...ball.currentBounds}
 
-                    let ballY = ball.currentBounds.top + ball.vy;
-                    let ballVy = ball.vy;
-
-
-                    if (ballY < 0) {
-                        ballY = 0;
-                        ballVy = -1 * ballVy;
-                    } else if (ballY + ball.currentBounds.height > 100) {
-                        ballY = 100 - ball.currentBounds.height;
-                        ballVy = -1 * ballVy;
-                    }
-
-                    let ballX = ball.currentBounds.left + ball.vx;
-                    let ballVx = ball.vx;
-
-                    if (ballX < 0) {
-                        ballX = 0;
-                        ballVx = -1 * ballVx;
-                    } else if (ballX + ball.currentBounds.width > 100) {
-                        ballX = 100 - ball.currentBounds.width;
-                        ballVx = -1 * ballVx;
-                    }
-
                     newBall = {
                         ...state.ball,
                         currentBounds: {
                             ...state.ball.currentBounds,
-                            top: ballY,
-                            left: ballX
-                        }, vy: ballVy, vx: ballVx
+                            top: ball.currentBounds.top + ball.vy,
+                            left: ball.currentBounds.left + ball.vx
+                        }
                     };
 
 
@@ -243,11 +220,30 @@ let myStore = createStore(
                         } else if (ballVx < -2) {
                             ballVx = -2;
                         }
-
                         newBall.vx = ballVx;
                     }
 
-                    newState = {...state, bar: newBar, ball: newBall, bricks: newBricks};
+                    let newStateStatus = state.gameStatus;
+
+                    if (newBall.currentBounds.left < 0) {
+                        newBall.currentBounds.left = 0;
+                        newBall.vx *= -1;
+                    } else if (newBall.currentBounds.left + newBall.currentBounds.width > 100) {
+                        newBall.currentBounds.left = 100 - ball.currentBounds.width;
+                        newBall.vx *= -1;
+                    }
+
+                    if (newBall.currentBounds.top < 0) {
+                        newBall.currentBounds.top = 0;
+                        newBall.vy *= -1;
+                    } else if (newBall.currentBounds.top + newBall.currentBounds.height > 100) {
+                        newBall.currentBounds.top = 100 - ball.currentBounds.height;
+                        newBall.vy = 0;
+                        newBall.vx = 0;
+                        newStateStatus=GAME_STATUS.STARTING;
+                    }
+
+                    newState = {...state, bar: newBar, ball: newBall, bricks: newBricks, gameStatus: newStateStatus};
                 }
                 return newState;
             default:
